@@ -79,6 +79,7 @@ class GDBDebugSession extends MI2DebugSession {
 				args.ssh.remotex11screen = 0;
 			this.isSSH = true;
 			this.setSourceFileMap(args.ssh.sourceFileMap, args.ssh.cwd, args.cwd);
+			this.sourceFileMap.pathKind = args.ssh.pathKind;
 			this.miDebugger.ssh(args.ssh, args.ssh.cwd, args.target, args.arguments, args.terminal, false).then(() => {
 				if (args.autorun)
 					args.autorun.forEach(command => {

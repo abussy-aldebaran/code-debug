@@ -288,6 +288,16 @@
 									"bootstrap": {
 										"type": "string",
 										"description": "Content will be executed on the SSH host before the debugger call."
+									},
+									"pathKind": {
+										"type": "string",
+										"description": "Set the kind of paths on remote.\nIf auto, it is automatically detected.",
+										"default": "auto",
+										"enum": [
+											"auto",
+											"posix",
+											"win32"
+										]
 									}
 								}
 							}

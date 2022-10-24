@@ -8,6 +8,7 @@ interface Mapping {
 export class SourceFileMap {
 	private sortedMappings: { [key in keyof Mapping]: Mapping[] } = {remote: [], local: []};
 	private nativePath: PathKind;
+	public pathKind: string;
 
 	constructor (map: { [index: string]: string }) {
 		const mappings: Mapping[] = [];
@@ -17,7 +18,7 @@ export class SourceFileMap {
 			localPrefix = this.nativePath.normalizeDir(localPrefix);
 
 			// Try to detect remote path.
-			const debuggerPath: PathKind = SourceFileMap.toPathKind(remotePrefix);
+			const debuggerPath: PathKind = this.toPathKind(remotePrefix);
 			// Normalize remote path, adding trailing separator if missing.
 			remotePrefix = debuggerPath.normalizeDir(remotePrefix);
 
@@ -42,9 +43,13 @@ export class SourceFileMap {
 			return PathPosix.getInstance();
 	}
 
-	private static toPathKind(unknownPath: string): PathKind {
+	private toPathKind(unknownPath: string): PathKind {
 		const pathPosix: PathKind = PathPosix.getInstance();
 		const pathWin32: PathKind = PathWin32.getInstance();
+		if (this.pathKind == "win32")
+			return pathWin32;
+		if (this.pathKind == "posix")
+			return pathPosix;
 		return pathPosix.isAbsolute(unknownPath) ? pathPosix : pathWin32;
 	}
 
@@ -66,7 +71,7 @@ export class SourceFileMap {
 
 	public toLocalPath(remotePath: string): string {
 		// Try to detect remote path.
-		const debuggerPath: PathKind = SourceFileMap.toPathKind(remotePath);
+		const debuggerPath: PathKind = this.toPathKind(remotePath);
 		const normalizedRemotePath: string = debuggerPath.normalize(remotePath);
 		const mapping: Mapping | undefined =
 			this.pathMatch("remote", debuggerPath.caseSensitive, normalizedRemotePath);
@@ -88,7 +93,7 @@ export class SourceFileMap {
 		if (mapping) {
 			const pathSuffix = normalizedLocalPath.substring(mapping.local.length);
 			// Try to detect remote path.
-			const debuggerPath = SourceFileMap.toPathKind(mapping.remote);
+			const debuggerPath = this.toPathKind(mapping.remote);
 			return debuggerPath.join(mapping.remote, pathSuffix);
 		}
 
